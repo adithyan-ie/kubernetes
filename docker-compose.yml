@@ -38,7 +38,7 @@ services:
     depends_on: [checkout-service]
 
   postgres-db:
-    image: postgres:15        # use latest stable version
+    image: postgres:15        # use latest stable version image
     container_name: postgres-db
     restart: always
     environment:
