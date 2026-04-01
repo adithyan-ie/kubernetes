@@ -18,6 +18,16 @@ const inventory = {
 app.get('/health', (req, res) => res.json({ ok: true }));
 
 app.get('/stock/:sku', async (req, res) => {
+
+  const requestId = req.header('X-Request-Id') || `req-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  
+  console.log({
+    requestId,
+    message: 'Inventory request received',
+    sku: req.params.sku,
+    timestamp: new Date().toISOString(),
+  });
+  
   if (DELAY_MS > 0) await sleep(DELAY_MS);
 
   const sku = Number(req.params.sku);
@@ -26,7 +36,9 @@ app.get('/stock/:sku', async (req, res) => {
   }
   const item = inventory[sku];
   if (!item) return res.status(404).json({ error: 'unknown sku' });
-  return res.json({ sku, inStock: item.inStock });
+  
+ console.log({ requestId, message: 'Inventory response', sku, inStock: item.inStock });
+ return res.json({ sku, inStock: item.inStock });
 });
 
 app.listen(PORT, () => console.log(`inventory-service on ${PORT}`));

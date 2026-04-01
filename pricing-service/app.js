@@ -13,6 +13,15 @@ function sleep(ms) {
 app.get('/health', (req, res) => res.json({ ok: true }));
 
 app.post('/price', async (req, res) => {
+
+  const requestId = req.header('X-Request-Id') || `req-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  
+  console.log({
+    requestId,
+    message: 'Pricing request received',
+    timestamp: new Date().toISOString(),
+  });	
+	
   if (DELAY_MS > 0) await sleep(DELAY_MS);
 
   const { subtotal } = req.body;
@@ -23,6 +32,8 @@ app.post('/price', async (req, res) => {
   const taxRate = 0.23;
   const tax = Number((s * taxRate).toFixed(2));
   const total = Number((s + tax).toFixed(2));
+
+  console.log({ requestId, message: 'Pricing response', s, tax, total });
   return res.json({ subtotal: s, taxRate, tax, total });
 });
 
