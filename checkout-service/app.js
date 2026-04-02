@@ -76,8 +76,8 @@ const client = new Pool({
   host: 'postgres-db',               // Kubernetes Service name
   port: 5432,
   user: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRESPASSWORD || 'admin',
-  database: 'shop'               // default DB or your DB name
+  password: process.env.POSTGRES_PASSWORD || 'admin',
+  database: process.env.POSTGRES_DB || 'shop'               // default DB or your DB name
 });
 
 async function init_db() {
