@@ -79,6 +79,15 @@ spec:
               value: "1500"
             - name: PORT
               value: "3001"
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-creds
+                  key: password
+            - name: POSTGRES_DB
+              value: shop
           readinessProbe:
             httpGet: { path: /health, port: 3001 }
             initialDelaySeconds: 3
@@ -106,15 +115,15 @@ spec:
           image: nginx:alpine
           ports: [{ containerPort: 80 }]
           volumeMounts:
-            - { name: html, mountPath: /usr/share/nginx/html/index.html, subPath: index.html }
-            - { name: nginxConfig, mountPath: /etc/nginx/conf.d/default.conf, subPath: nginx.conf }
+            - { name: volume-gateway-ui, mountPath: /usr/share/nginx/html/index.html, subPath: index.html }
+            - { name: volume-nginx-config, mountPath: /etc/nginx/conf.d/default.conf, subPath: nginx.conf }
           readinessProbe:
             httpGet: { path: /, port: 80 }
             initialDelaySeconds: 3
             periodSeconds: 5
       volumes:
-        - { name: V-gateway-ui, configMap: { name: gateway-ui-configmap } }
-        - { name: V-nginx-config, configMap: { name: nginx-default-configmap } }
+        - { name: volume-gateway-ui, configMap: { name: gateway-ui-configmap } }
+        - { name: volume-nginx-config, configMap: { name: nginx-default-config } }
 ---
 apiVersion: v1
 kind: Service
