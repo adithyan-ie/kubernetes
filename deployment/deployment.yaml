@@ -2,14 +2,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata: { name: pricing-service-deployment }
 spec:
-  replicas: 2
+  replicas: 1
   selector: { matchLabels: { app: pricing-service } }
   template:
     metadata: { labels: { app: pricing-service } }
     spec:
       containers:
         - name: pricing-service-container
-          image: pricing-service:latest
+          image: localhost:5000/pricing-service:latest
           imagePullPolicy: IfNotPresent
           ports: [{ containerPort: 3003 }]
           env:
@@ -31,14 +31,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata: { name: inventory-service-deployment }
 spec:
-  replicas: 2
+  replicas: 1
   selector: { matchLabels: { app: inventory-service } }
   template:
     metadata: { labels: { app: inventory-service } }
     spec:
       containers:
         - name: inventory-service-container
-          image: inventory-service:latest
+          image: localhost:5000/inventory-service:latest
           imagePullPolicy: IfNotPresent
           ports: [{ containerPort: 3002 }]
           env:
@@ -60,14 +60,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata: { name: checkout-service-deployment }
 spec:
-  replicas: 2
   selector: { matchLabels: { app: checkout-service } }
   template:
     metadata: { labels: { app: checkout-service } }
     spec:
       containers:
         - name: checkout-service-container
-          image: checkout-service:latest
+          image: localhost:5000/checkout-service:latest
           imagePullPolicy: IfNotPresent
           ports: [{ containerPort: 3001 }]
           env:
@@ -90,8 +89,9 @@ spec:
               value: shop
           readinessProbe:
             httpGet: { path: /health, port: 3001 }
-            initialDelaySeconds: 3
+            initialDelaySeconds: 15
             periodSeconds: 5
+            failureThreshold: 6
 ---
 apiVersion: v1
 kind: Service
@@ -132,15 +132,3 @@ spec:
   selector: { app: api-gateway }
   ports: [{ port: 80, targetPort: 80 }]
 ---
-
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata: { name: service-ingress }
-spec:
-  ingressClassName: traefik
-  rules:
-    - http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend: { service: { name: gateway-svc, port: { number: 80 } } }

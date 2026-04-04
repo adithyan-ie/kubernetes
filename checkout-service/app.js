@@ -100,7 +100,7 @@ async function init_db() {
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
-app.post('/checkout', async (req, res) => {
+app.post('/api/checkout', async (req, res) => {
   const { sku, subtotal } = req.body;
   const skuNum = Number(sku);
   const subNum = Number(subtotal);
@@ -157,7 +157,7 @@ app.post('/checkout', async (req, res) => {
 
 
 // GET all saved checkouts
-app.get('/checkout', async (req, res) => {
+app.get('/api/checkout', async (req, res) => {
   try {
     const result = await client.query('SELECT * FROM orders');
     res.json(result.rows);
