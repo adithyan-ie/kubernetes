@@ -13,6 +13,9 @@ const inventory = {
   1: { inStock: true },
   2: { inStock: true },
   3: { inStock: false },
+  4: { inStock: true },
+  5: { inStock: false },
+  6: { inStock: true },
 };
 
 app.get('/health', (req, res) => res.json({ ok: true }));
@@ -28,17 +31,22 @@ app.get('/stock/:sku', async (req, res) => {
     timestamp: new Date().toISOString(),
   });
   
-  if (DELAY_MS > 0) await sleep(DELAY_MS);
+  try{	
+	  if (DELAY_MS > 0) await sleep(DELAY_MS);
 
-  const sku = Number(req.params.sku);
-  if (!Number.isInteger(sku)) {
-    return res.status(400).json({ error: 'sku must be an integer' });
-  }
-  const item = inventory[sku];
-  if (!item) return res.status(404).json({ error: 'unknown sku' });
+  	const sku = Number(req.params.sku);
+  	if (!Number.isInteger(sku)) {
+    	return res.status(400).json({ error: 'sku must be an integer' });
+ 	 }
+  	const item = inventory[sku];
+  	if (!item) return res.status(404).json({ error: 'unknown sku' });
   
- console.log({ requestId, message: 'Inventory response', sku, inStock: item.inStock });
- return res.json({ sku, inStock: item.inStock });
+ 	console.log({ requestId, message: 'Inventory response', sku, inStock: item.inStock });
+ 	return res.json({ sku, inStock: item.inStock });
+	}catch (err) {
+    console.error({ requestId, message: 'Inventory request failed', error: err.message, stack: err.stack });
+    return res.status(500).json({ error: 'internal server error' });
+  }	
 });
 
 app.listen(PORT, () => console.log(`inventory-service on ${PORT}`));

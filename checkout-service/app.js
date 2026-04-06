@@ -85,6 +85,7 @@ async function init_db() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS orders (
         id SERIAL PRIMARY KEY,
+	requestId varchar(100),
         sku INTEGER,
         subtotal NUMERIC,
         price JSONB,
@@ -139,12 +140,12 @@ app.post('/api/checkout', async (req, res) => {
     }
 
      await client.query(
-      `INSERT INTO orders (sku, subtotal, price, in_stock)
-       VALUES ($1, $2, $3, $4)`,
-      [skuNum, subNum, price, stock.inStock]
+      `INSERT INTO orders (requestId,sku, subtotal, price, in_stock)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [requestId, skuNum, subNum, price, stock.inStock]
     );  
      log(requestId, 'Checkout success', { sku: skuNum });  
-    return res.json({ ok: true, sku: skuNum, price, stock });
+    return res.json({ ok: true, requestId: requestId, sku: skuNum, price, stock });
 
   } catch (e) {
     log(requestId, 'Checkout failed', { error: e.stack });
